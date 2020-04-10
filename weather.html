@@ -67,17 +67,7 @@
 		<h2 class="h1" style="text-align:center;">5 Day Forecast</h2>
 		<hr>
 		<div class="row" id="5_day_forecast">
-                <div style="width: 20%;">
-						<div class="card">
-							<div class="card-body">
-								<h5 class="card-title"><!-- List Day of the Week Here --></h5>
-								<p class="card-text">High:<!--List Temperature High --> <br>
-									Low: <!-- List Temperature Low --><br>
-                  Sunrise: <!-- List Time of Sunrise --><br>
-                  Sunset: <!-- List Time of Sunset --></p>
-							</div>
-						</div>
-					</div>
+<
 
 		</div>
 		<br>
@@ -90,7 +80,7 @@
     var dayOfWeek = "";
     function formatDate(date, month, year)
     {
-      month = (month.length < 2) ? ('0' + month) : month;
+      month = (month.length < 2) ?  month :('0' + month);
       date = (date.length < 2)? ('0' + date) : date;
       return [year,month,date].join('-');
     }
@@ -106,10 +96,14 @@
 			var url ='https://api.weatherstack.com/forecast?access_key=5bc82451636190abd9d7afe6fe9b20b5&query=40.0150,-105.2705&forecast_days=6'; //Place your weatherstack API Call Here - access_key to be used: 5bc82451636190abd9d7afe6fe9b20b5
 
 			$.ajax({url:url, dataType:"jsonp"}).then(function(data) {
-				var unix_time =data.location.localtime;//Retrieve the current timestamp
-    		    var javascript_time = new Date(unix_time * 1000);//Convert the unix time stamp to javascript
-    		    console.log(javascript_time);
-    		    console.log(javascript_time.getDay());
+				var unix_time =new Date(data.location.localtime);//Retrieve the current timestamp
+				//unix_time.format("yy-mm-dd");
+                var Y = unix_time.getFullYear();
+                var M = unix_time.getMonth() + 1;
+                //M = (M.length <=1) ? M :('0' + M) ;  
+                var D = unix_time.getDate();
+                var date = formatDate(D,M,Y);
+                console.log(date);
 				var image_today =  document.getElementById("image_today");
                 console.log(image_today); // prints something? Cool no typos so far
                 var image_source =  data.current.weather_icons;
@@ -166,26 +160,39 @@
             getDayofWeek(d,m,y);
             return data.forecast[key_forecast];
         }
+        //var date =  new Date(unix_time.toDateString());
+        //console.log(date);
         var week_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        var forecastRow = $("5_day_forecast");
-        for (var i = 1; i < 5; i++) {
+        var forecastRow = $("#5_day_forecast");
+        console.log(forecastRow);
+        for (var i = 1; i <= 5; i++) {
                                     // create the cards
-                                    var dayOfWeek = week_names[new Date(data.forecast[date+i]).getDay()];
-  
-                                    var Sunrise = data.forecast[date+i].astro.sunrise;
-                                    var Sunset = data.forecast[date+i].astro.sunset;
-                                    var dayHigh = data.forecast[date+i].maxtemp + "F";
-                                    var dayLow = data.forecast[date+i].mintemp + "F";
+                                    //getKey(date+i);
+                                    date = new Date();
+                                    date.setDate(date.getDate() + i);
+                                    var dayOfWeek = date.getDay();
+                                    dayOfWeek = week_names[dayOfWeek];
+                                    var Y = date.getFullYear();
+                                    var M = date.getMonth() + 1;
+      
+                                    var D = date.getDate();
+                                    date = formatDate(D,M,Y);
+                         
+                                    
+                                    console.log(date);
+                                    var Sunrise = data.forecast[date].astro.sunrise;
+                                    var Sunset = data.forecast[date].astro.sunset;
+                                    var dayHigh = data.forecast[date].maxtemp + "F";
+                                    var dayLow =data.forecast[date].mintemp + "F";
+                                    //console.log(Sunrise);
                                     forecastRow.append(
                                         $('<div style="width: 20%;""></div>').append(
                                             $('<div class="card"></div>').append(
-                                                //$('<img class="card-img-top" src="' + dayIcon + '" alt="' + daySummary + '">'),
-                                                $('<div class="card-body">').append(
-                                                $('<h5 class="card-title">' + dayOfWeek).append(
-                                                $('<p class="card-text">High: ' + dayHigh + '\nLow: ' + dayLow +'\nSunrise: ' + Sunrise + '\nSunset: ' + Sunset + '</p>')
-                                                )
+                                                 $('<div class="card-body"></div>').append(
+                                                    $('<h5 class="card-title">' + dayOfWeek +'</h5>'),
+                                                    $('<p class="card-text">High: ' + dayHigh + '\nLow: ' + dayLow +'\nSunrise: ' + Sunrise + '\nSunset: ' + Sunset + '</p>')
+                                                 )
                                             )
-                                        )
                                         )
                                     );
                                 }
