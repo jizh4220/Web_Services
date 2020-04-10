@@ -29,7 +29,7 @@
   <body>
   	<div class="container">
 		<br>
-		<h1 id="heading" style="text-align:center">Weather Forecast</h1>
+		<h1 id="heading" style="text-align:center">Today's Weather Forecast-</h1>
 		<hr>
     <div class="row">
       <div class="col-6">
@@ -106,14 +106,30 @@
 			var url ='https://api.weatherstack.com/forecast?access_key=5bc82451636190abd9d7afe6fe9b20b5&query=40.0150,-105.2705&forecast_days=6'; //Place your weatherstack API Call Here - access_key to be used: 5bc82451636190abd9d7afe6fe9b20b5
 
 			$.ajax({url:url, dataType:"jsonp"}).then(function(data) {
-				document.getElementById("image_today").innerHTML = data.current.weather_icons;
-				//document.getElementById("current_location").innerHTML = data.location.name;
-				//document.getElementById("temp_celsius").innerHTML = data.current.temperature; //celsius
-				document.getElementById("temp_today").innerHTML = getFarenheitTemp(data.current.temperature);//Farenheit
-				document.getElementById("precip_today").innerHTML = data.current.precip;
-				document.getElementById("humidity_today").innerHTML = data.current.humidity;
-				document.getElementById("wind_today").innerHTML = data.current.windspeed;
+				var unix_time =data.location.localtime;//Retrieve the current timestamp
+    		    var javascript_time = new Date(unix_time * 1000);//Convert the unix time stamp to javascript
+    		    console.log(javascript_time);
+    		    console.log(javascript_time.getDay());
+				var image_today =  document.getElementById("image_today");
+                console.log(image_today); // prints something? Cool no typos so far
+                var image_source =  data.current.weather_icons;
+                console.log(image_source);
+                image_today.src = image_source;
+                document.getElementById("heading").innerHTML += data.location.name;
+				document.getElementById("local_time").innerHTML = data.location.localtime; 
+				
+				document.getElementById("temp_today").innerHTML = getFarenheitTemp(data.current.temperature) + "F";//Farenheit
+				document.getElementById("precip_today").innerHTML = data.current.precip + "%";
+				document.getElementById("humidity_today").innerHTML = data.current.humidity + "%";
+				document.getElementById("wind_today").innerHTML = data.current.wind_speed;
 				document.getElementById("summary_today").innerHTML = data.current.weather_descriptions;
+                var thermo_height = data.current.temperature;
+                if (thermo_height > 100) {
+                    thermo_height = 100;
+                                } else if (thermo_height < 0) {
+                                    thermo_height = 0;
+                                }
+				$("#thermometer_inner").css("height", thermo_height + "%");
       	/*
 					Read the current weather information from the data point values [https://weatherstack.com/documentation] to
 					update the webpage for today's weather:
@@ -150,16 +166,29 @@
             getDayofWeek(d,m,y);
             return data.forecast[key_forecast];
         }
-        var container = document.getElementById("5_day_forecast");
-		for( var i=0;i <5; i++)
-		{
-		   var el = document.createElement("div");
-		  el.className ="card";
-		  el.id = "card" + i;
-		  el.title = "Monday";
-		  el.innerHTML = getFarenheitTemp(data.current.temperature);
-		  container.append(el);
-		}
+        var week_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var forecastRow = $("5_day_forecast");
+        for (var i = 1; i < 5; i++) {
+                                    // create the cards
+                                    var dayOfWeek = week_names[new Date(data.forecast[date+i]).getDay()];
+  
+                                    var Sunrise = data.forecast[date+i].astro.sunrise;
+                                    var Sunset = data.forecast[date+i].astro.sunset;
+                                    var dayHigh = data.forecast[date+i].maxtemp + "F";
+                                    var dayLow = data.forecast[date+i].mintemp + "F";
+                                    forecastRow.append(
+                                        $('<div style="width: 20%;""></div>').append(
+                                            $('<div class="card"></div>').append(
+                                                //$('<img class="card-img-top" src="' + dayIcon + '" alt="' + daySummary + '">'),
+                                                $('<div class="card-body">').append(
+                                                $('<h5 class="card-title">' + dayOfWeek).append(
+                                                $('<p class="card-text">High: ' + dayHigh + '\nLow: ' + dayLow +'\nSunrise: ' + Sunrise + '\nSunset: ' + Sunset + '</p>')
+                                                )
+                                            )
+                                        )
+                                        )
+                                    );
+                                }
 					/*
 					For the next 5 days you'll need to add a new card listing:
 						1. The day of the week
