@@ -117,13 +117,20 @@
 				document.getElementById("humidity_today").innerHTML = data.current.humidity + "%";
 				document.getElementById("wind_today").innerHTML = data.current.wind_speed;
 				document.getElementById("summary_today").innerHTML = data.current.weather_descriptions;
-                var thermo_height = data.current.temperature;
-                if (thermo_height > 100) {
-                    thermo_height = 100;
+                var thermo_height = getFarenheitTemp(data.current.temperature); 
+                console.log(thermo_height);
+                var thermo_color = "grey";
+                                if (thermo_height > 100) {
+                                    thermo_height = 100;
                                 } else if (thermo_height < 0) {
                                     thermo_height = 0;
+                                } else if (thermo_height > 85) {
+                                    thermo_color = "red";
+                                } else if (thermo_height < 65) {
+                                    thermo_color = "blue"
                                 }
-				$("#thermometer_inner").css("height", thermo_height + "%");
+                                $("#thermometer_inner").css("height", thermo_height + "%");
+                                $("#thermometer_inner").css("background-color", thermo_color);
       	/*
 					Read the current weather information from the data point values [https://weatherstack.com/documentation] to
 					update the webpage for today's weather:
